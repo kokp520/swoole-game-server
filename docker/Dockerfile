@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
+    brotli \
+    libbrotli-dev \
     && docker-php-ext-install mysqli pdo pdo_mysql
 
 # 安裝 Swoole

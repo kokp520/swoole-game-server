@@ -12,7 +12,8 @@ $server->on("start", function (Server $server) {
 
 $server->on("request", function (Request $request, Response $response) {
     $response->header("Content-Type", "text/plain");
-    $response->end("Hello ServBay!");
+    $response->end("Hello http server!");
 });
 
 $server->start();
+

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  php-fpm:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: php-fpm
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - swoole-net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "9080:80"  # Nginx 將在本地的 8080 端口運行
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - swoole-net
+
+  swoole:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: swoole
+    command: php /var/www/html/server.php
+    expose:
+      - "9501"  # 這是 swoole 服務的 WebSocket 端口
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - swoole-net
+
+networks:
+  swoole-net:
+    driver: bridge

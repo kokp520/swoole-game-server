@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use Swoole\WebSocket\Server;
+use Swoole\Http\Request;
+use Swoole\Websocket\Frame;
+use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
 
-class WebSocketController
+class WebSocketController implements WebSocketHandlerInterface
 {
-    public function onOpen(Server $server, $request)
+    public function __construct(){}
+    // {
+    //     // ::__construct();
+    //     // parent::__construct();
+    // }
+
+    public function onOpen(Server $server, Request $request)
     {
-        // 當 WebSocket 連接建立時執行
         $server->push($request->fd, "Welcome to WebSocket server");
     }
 
-    public function onMessage(Server $server, $frame)
+    public function onMessage(Server $server, Frame $frame)
     {
         // 當收到消息時執行
         // $server->push($frame->fd, "Received: {$frame->data}");
@@ -35,8 +43,13 @@ class WebSocketController
         }
     }
 
-    public function onClose(Server $server, $fd)
+    public function onClose(Server $server, $fd, $reactorId)
     {
         // 當 WebSocket 連接關閉時執行
+        echo "websocket connection closed\n" . json_encode([
+            'fd' => $fd,
+            'server' => $server,
+            'reactorId' => $reactorId
+        ]);
     }
 }

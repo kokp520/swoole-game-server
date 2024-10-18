@@ -148,7 +148,7 @@ return [
 
     'websocket' => [
         'enable' => true, // 啟用websocket connect
-        'handler' => \App\Http\Controllers\WebSocketHandler::class,
+        'handler' => \App\Http\Controllers\WebSocketController::class,
     ],
 
     /*

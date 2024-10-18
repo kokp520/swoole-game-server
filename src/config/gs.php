@@ -32,7 +32,8 @@ return [
     |
     */
 
-    'listen_port' => env('LARAVELS_LISTEN_PORT', 5200),
+    // 'listen_port' => env('LARAVELS_LISTEN_PORT', 5200),
+    'listen_port' => 5201,
 
     /*
     |--------------------------------------------------------------------------

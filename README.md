@@ -1,6 +1,19 @@
 
 
-# Swoole Game Server
+## About swoole-game-server
 
-# Requirements
+## log book
 
+ - **20241018**
+
+#### install laravel
+composer create-project --prefer-dist laravel/laravel laravel-app
+
+#### install laravel-s
+composer require hhxsv5/laravel-s
+
+#### new config publish
+php artisan laravels publish
+
+#### create websocket Handler Controller 
+config/laravels.php should setting route

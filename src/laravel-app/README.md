@@ -15,6 +15,5 @@ composer require hhxsv5/laravel-s
 #### new config publish
 php artisan laravels publish
 
-
-
-
+#### create websocket Handler Controller 
+config/laravels.php should setting route

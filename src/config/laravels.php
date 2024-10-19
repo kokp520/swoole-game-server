@@ -148,7 +148,7 @@ return [
 
     'websocket' => [
         'enable' => true, // 啟用websocket connect
-        'handler' => \App\Http\Handler\WebSocketHandler::class,
+        'handler' => \App\Http\Handlers\WebSocketHandler::class,
     ],
 
     /*
@@ -304,6 +304,10 @@ return [
         'enable_coroutine'   => false,
         'upload_tmp_dir'     => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'http_compression'   => env('LARAVELS_HTTP_COMPRESSION', false),
+
+        // 心跳檢測
+        'heartbeat_check_interval' => 60,
+        'heartbeat_idle_time'      => 120,
     ],
 
     /*

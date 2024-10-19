@@ -160,8 +160,11 @@ $loader->requireFile($basePath . '/vendor/symfony/polyfill-php80/bootstrap.php')
 $loader->addNamespace('Symfony\Component\Console', $basePath . '/vendor/symfony/console');
 $loader->addNamespace('Symfony\Contracts\Service', $basePath . '/vendor/symfony/service-contracts');
 $loader->addNamespace('Symfony\Contracts', $basePath . '/vendor/symfony/contracts');
+// 載入app namespace
+$loader->addNamespace('App', $basePath . '/app');
+// $command = new Hhxsv5\LaravelS\Console\Portal($basePath);
+$command = new App\MyPortal($basePath);
 
-$command = new Hhxsv5\LaravelS\Console\Portal($basePath);
 $input = new Symfony\Component\Console\Input\ArgvInput();
 $output = new Symfony\Component\Console\Output\ConsoleOutput();
 $code = $command->run($input, $output);

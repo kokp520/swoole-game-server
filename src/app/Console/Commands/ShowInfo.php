@@ -18,7 +18,7 @@ class ShowInfo extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = '顯示laravels相關資訊';
 
     /**
      * Execute the console command.

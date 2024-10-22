@@ -5,10 +5,6 @@ namespace App;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Hhxsv5\LaravelS\Components\Apollo\Client;
-use Symfony\Component\Console\Style\SymfonyStyle;
-
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\ConsoleOutput;
 
 class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
 {
@@ -16,6 +12,23 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
     {
         parent::__construct($basePath);
     }
+
+    private function delAlreadyUsedProcess($port, $pidfile)
+    {
+        $cmd = "lsof -i :$port -t";
+        $pid = shell_exec($cmd);
+
+        if ($pid) {
+            $pidList = explode("\n", trim($pid));
+            foreach ($pidList as $pid) {
+                // echo "Killing process with PID $pid on port $port" . PHP_EOL;
+                exec("kill -9 $pid");
+            }
+            // var_dump($pidfile);
+            `sleep 0.1`;
+        }
+    }
+
 
     protected function configure()
     {
@@ -30,6 +43,28 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
         $this->addOption('x-version', 'x', InputOption::VALUE_OPTIONAL, 'The version(branch) of the current project, stored in $_ENV/$_SERVER');
         Client::attachCommandOptions($this);
     }
+
+    public function getLaravelsConfig(): array
+    {
+        // 定義配置文件的路徑
+        $configPath = __DIR__ . '/../config/laravels.php'; // 根據實際文件路徑修改
+
+        // 檢查文件是否存在
+        if (!file_exists($configPath)) {
+            throw new \Exception("Configuration file not found at path: " . $configPath);
+        }
+
+        // 包含並返回配置數據
+        $config = include $configPath;
+
+        // 檢查配置是否正確返回為數組
+        if (!is_array($config)) {
+            throw new \Exception("Configuration file did not return an array.");
+        }
+
+        return $config;
+    }
+
 
     public function start()
     {
@@ -61,13 +96,16 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
 
         $service = $options['services'];
         $port = $config['server']['services'][$options['services']]['port'];
-        $statusCode = self::runArtisanCommand($this->basePath, trim('app:show-info')." --s=$service --p=$port");
+        $statusCode = self::runArtisanCommand($this->basePath, trim('app:show-info') . " --s=$service --p=$port");
         if ($statusCode !== 0) {
             return $statusCode;
         }
 
-        if (!$config['server']['ignore_check_pid'] && file_exists($config['server']['swoole']['pid_file'])) {
-            $pid = (int)file_get_contents($config['server']['swoole']['pid_file']);
+        $pidfile = $config['server']['services'][$service]['pid_file'];
+        $this->delAlreadyUsedProcess($port, $pidfile);
+
+        if (!$config['server']['ignore_check_pid'] && file_exists($pidfile)) {
+            $pid = (int)file_get_contents($pidfile);
             if ($pid > 0 && self::kill($pid, 0)) {
                 $this->warning(sprintf('Swoole[PID=%d] is already running.', $pid));
                 return 1;
@@ -95,47 +133,6 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
 
     public function showInfo()
     {
-        // // 手動啟動 Laravel 應用
-        // $app = require_once __DIR__ . '/../bootstrap/app.php';
-        // $app->make(Kernel::class)->bootstrap();
-
-        // // 現在可以安全使用 app() 函數
-        // $laravelVersion = app()->version();
-
         return self::runArtisanCommand($this->basePath, 'app:show-info');
-
-        return $output;
-    }
-
-    public function loadsomethine()
-    {
-        // 檢查應用是否已經加載，如果沒有則加載
-        // if (! function_exists('config')) {
-        //     $app = require_once __DIR__ . '/../bootstrap/app.php';
-        //     $app->make(ConsoleKernel::class)->bootstrap();
-        // }
-        // $config = $this->getConfig();
-
-        // $services = config('laravels.services');
-        // $services = $config['server']['services'];
-        // $protocols = [];
-
-        // foreach ($services as $service => $config) {
-        //     $port = $config['port'] ?? '未設置';
-        //     $protocols[] = [
-        //         'Service' => $service,
-        //         'Protocol' => 'HTTP',
-        //         'Status' => 'On',
-        //         'Handler' => 'Laravel Router',
-        //         'Listen At' => "http://127.0.0.1:$port",
-        //     ];
-        // }
-
-        // // 使用 SymfonyStyle 格式化輸出
-        // $style = new SymfonyStyle($this->input, $this->output);
-        // $style->table(
-        //     ['Service', 'Protocol', 'Status', 'Handler', 'Listen At'],
-        //     $protocols
-        // );
     }
 }

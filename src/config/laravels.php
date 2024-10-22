@@ -147,8 +147,8 @@ return [
     */
 
     'websocket' => [
-        'enable' => true, // 啟用websocket connect
-        'handler' => \App\Http\Handlers\WebSocketHandler::class,
+        'enable' => false,
+        // 'handler' => XxxWebSocketHandler::class,
     ],
 
     /*
@@ -304,25 +304,5 @@ return [
         'enable_coroutine'   => false,
         'upload_tmp_dir'     => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'http_compression'   => env('LARAVELS_HTTP_COMPRESSION', false),
-
-        // 心跳檢測
-        'heartbeat_check_interval' => 60,
-        'heartbeat_idle_time'      => 120,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | 多服務器設定
-    |--------------------------------------------------------------------------
-    */
-    'services' => [
-        'lobby' => [
-            'port' => 5200
-        ],
-        'gs' => [
-            'port' => 5201
-        ],
-        'rank' => [], // 改用redis處理
-        'admin' => [],
     ],
 ];

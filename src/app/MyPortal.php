@@ -44,28 +44,6 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
         Client::attachCommandOptions($this);
     }
 
-    public function getLaravelsConfig(): array
-    {
-        // 定義配置文件的路徑
-        $configPath = __DIR__ . '/../config/laravels.php'; // 根據實際文件路徑修改
-
-        // 檢查文件是否存在
-        if (!file_exists($configPath)) {
-            throw new \Exception("Configuration file not found at path: " . $configPath);
-        }
-
-        // 包含並返回配置數據
-        $config = include $configPath;
-
-        // 檢查配置是否正確返回為數組
-        if (!is_array($config)) {
-            throw new \Exception("Configuration file did not return an array.");
-        }
-
-        return $config;
-    }
-
-
     public function start()
     {
         if (!extension_loaded('swoole') && !extension_loaded('openswoole')) {

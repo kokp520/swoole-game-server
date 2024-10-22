@@ -52,6 +52,9 @@
         <input type="text" id="playerName" placeholder="Enter your name" />
         <br />
         <button id="enterGame">Enter Game</button>
+        <br />
+        <input type="text" id="customCommand" placeholder="Enter custom command" />
+        <button id="enterCommand">Enter Command</button>
     </div>
 
     <script>
@@ -63,6 +66,19 @@
             if (playerName) {
                 ws.send(JSON.stringify({
                     cmd: playerName
+                })); // 發送 WebSocket 消息
+                // ws.send(JSON.stringify({ type: 'join', name: playerName })); // 傳送玩家名稱到 WebSocket 服務
+            } else {
+                alert("Please enter your name.");
+            }
+        });
+
+        document.getElementById('enterCommand').addEventListener('click', () => {
+            const customCommand = document.getElementById('customCommand').value;
+
+            if (customCommand) {
+                ws.send(JSON.stringify({
+                    cmd: customCommand
                 })); // 發送 WebSocket 消息
                 // ws.send(JSON.stringify({ type: 'join', name: playerName })); // 傳送玩家名稱到 WebSocket 服務
             } else {

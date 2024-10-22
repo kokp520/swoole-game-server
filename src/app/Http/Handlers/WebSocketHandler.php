@@ -9,15 +9,19 @@ use Hhxsv5\LaravelS\Swoole\WebSocketHandlerInterface;
 
 class WebSocketHandler implements WebSocketHandlerInterface
 {
-    public function __construct(){}
-    // {
-    //     // ::__construct();
-    //     // parent::__construct();
-    // }
+
+    private $server;
+
+    public function __construct()
+    {
+        echo "WebSocketHandler init" . PHP_EOL;
+        // create ...s
+    }
 
     public function onOpen(Server $server, Request $request)
     {
-        $server->push($request->fd, "Welcome to WebSocket server");
+        $this->pusher($server, $request->fd, "Welcome to websocket server");
+        echo ("new user connect, fd : $request->fd " . PHP_EOL);
     }
 
     public function onMessage(Server $server, Frame $frame)
@@ -26,6 +30,7 @@ class WebSocketHandler implements WebSocketHandlerInterface
         // $server->push($frame->fd, "Received: {$frame->data}");
         // 解析收到的消息
         $data = json_decode($frame->data, true);
+        echo ("recieve: data: " . json_encode($data) . PHP_EOL);
 
         if (isset($data['cmd'])) {
             // 根據命令執行對應的動作
@@ -51,5 +56,13 @@ class WebSocketHandler implements WebSocketHandlerInterface
             'server' => $server,
             'reactorId' => $reactorId
         ]);
+    }
+
+    public function pusher($server, $fd, $msg, $data = []) 
+    {
+        $server->push($fd, json_encode([
+            'message' => $msg,
+            'data' => $data
+        ]));
     }
 }

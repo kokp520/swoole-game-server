@@ -46,7 +46,7 @@ class ShowInfo extends Command
         $protocolsTable
             ->setHeaders(['Protocol', 'Status', 'Handler', 'Listen At'])
             ->setRows([
-                ['Lobby', 'On', "App\\Http\\Handlers\\{$server}Handler", "http://127.0.0.1:$port/game"],
+                ['Lobby', 'On', "App\\Http\\Handlers\\{$server}Handler", "http://127.0.0.1:$port/lobby"],
                 ['Gs', 'On', "App\\Http\\Handlers\\{$server}Handler", "http://127.0.0.1:$port/game"],
                 ['Main HTTP', 'On', 'Laravel Router', 'http://127.0.0.1:5200'],
                 ['Main WebSocket', 'On', 'App\Http\Handlers\WebSocketHandler', 'ws://127.0.0.1:5200'],

@@ -147,8 +147,8 @@ return [
     */
 
     'websocket' => [
-        'enable' => false,
-        // 'handler' => XxxWebSocketHandler::class,
+        'enable' => true,
+        'handler' => \App\Http\Handlers\WebSocketHandler::class,
     ],
 
     /*
@@ -291,7 +291,7 @@ return [
         'task_tmpdir'        => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'max_request'        => env('LARAVELS_MAX_REQUEST', 100000),
         'open_tcp_nodelay'   => true,
-        'pid_file'           => storage_path('laravels.pid'),
+        // 'pid_file'           => storage_path('laravels.pid'),
         'log_level'          => env('LARAVELS_LOG_LEVEL', 4),
         'log_file'           => storage_path(sprintf('logs/swoole-%s.log', date('Y-m'))),
         'document_root'      => base_path('public'),
@@ -304,5 +304,27 @@ return [
         'enable_coroutine'   => false,
         'upload_tmp_dir'     => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'http_compression'   => env('LARAVELS_HTTP_COMPRESSION', false),
+
+        // 心跳檢測
+        'heartbeat_check_interval' => 60,
+        'heartbeat_idle_time'      => 120,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | 多服務器設定
+    |--------------------------------------------------------------------------
+    */
+    'services' => [
+        'lobby' => [
+            'port' => 5200,
+            'pid_file' => storage_path('laravels-lobby.pid')
+        ],
+        'gs' => [
+            'port' => 5201,
+            'pid_file' => storage_path('laravels-gs.pid')
+        ],
+        'rank' => [], // 改用redis處理
+        'admin' => [],
+     ],
 ];

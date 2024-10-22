@@ -24,7 +24,6 @@ class MyPortal extends \Hhxsv5\LaravelS\Console\Portal
                 // echo "Killing process with PID $pid on port $port" . PHP_EOL;
                 exec("kill -9 $pid");
             }
-            // var_dump($pidfile);
             `sleep 0.1`;
         }
     }

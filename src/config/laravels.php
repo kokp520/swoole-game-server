@@ -162,7 +162,23 @@ return [
     |
     */
 
-    'sockets' => [],
+    'sockets' => [
+        [
+            'name' => 'Lobby',
+            'host' => '127.0.0.1',
+            'port' => 5200,
+            'protocol' => 'ws',
+            'handler' => \App\Http\Handlers\LobbyHandler::class, // Lobby WebSocket 的處理器
+        ],
+        // 配置 gs 服務
+        [
+            'name' => 'Gs',
+            'host' => '127.0.0.1',
+            'port' => 5201,
+            'protocol' => 'ws',
+            'handler' => \App\Http\Handlers\GsHandler::class, // Gs WebSocket 的處理器
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -308,6 +324,8 @@ return [
         // 心跳檢測
         'heartbeat_check_interval' => 60,
         'heartbeat_idle_time'      => 120,
+
+        
     ],
 
     /*

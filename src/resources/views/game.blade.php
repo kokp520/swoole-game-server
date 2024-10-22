@@ -19,7 +19,7 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const ws = new WebSocket('ws://127.0.0.1:5200'); // 假設你的 WebSocket 服務在這個地址
+        const ws = new WebSocket('ws://127.0.0.1:5201'); // 假設你的 WebSocket 服務在這個地址
 
         let player = {
             x: 200,

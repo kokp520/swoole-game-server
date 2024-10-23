@@ -63,4 +63,5 @@ Swoole\Timer::tick(5000, function() use ($server) {
     echo "Total Sent Bytes: {$stats['total_send_bytes']}\n";
 });
 
+echo 'server start ...'.PHP_EOL;
 $server->start();

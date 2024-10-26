@@ -11,11 +11,17 @@ class WebSocketHandler implements WebSocketHandlerInterface
 {
     private $players = [];
     private $server;
+    private const GRAVITY = 0.5; // 重力
+    private const FRICTION = 0.8; // 摩擦力
+    private const JUMP_STRENGTH = -10; // 跳躍力
+    private const MOVE_SPEED = 5; // 移動速度
+    private const TICK_RATE = 60; // 每秒60次更新
 
     public function __construct()
     {
         echo "WebSocketHandler init" . PHP_EOL;
         $this->startMonitoring();
+        $this->startGameLoop();
     }
 
     public function onOpen(Server $server, Request $request)
@@ -24,79 +30,117 @@ class WebSocketHandler implements WebSocketHandlerInterface
             $this->server = $server;
         }
 
-        $this->players[$request->fd] = [
-            'x' => 200,
-            'y' => 200,
-            'color' => 'blue',
-        ];
-
-        foreach ($server->connections as $fd) {
-            if ($server->isEstablished($fd)) {
-                $this->pusher($server, $fd, 'newPlayer', [
-                    'players' => $this->players
-                ]);
-            }
-        }
-
         echo ("new user connect, fd : $request->fd " . PHP_EOL);
     }
 
     public function onMessage(Server $server, Frame $frame)
     {
         $data = json_decode($frame->data, true);
-        echo ("recieve: data: " . json_encode($data) . PHP_EOL);
+        echo ("receive: data: " . json_encode($data) . PHP_EOL);
 
         if (isset($data['cmd'])) {
             switch ($data['cmd']) {
-                case 'up':
-                    $this->players[$frame->fd]['y'] -= 10;
-                    break;
-                case 'down':
-                    $this->players[$frame->fd]['y'] += 10;
+                case 'newplayer':
+                    $this->players[$frame->fd] = [
+                        'x' => 200,
+                        'y' => 200,
+                        'color' => $data['color'] ?? 'blue',
+                        'name' => $data['name'] ?? 'Player',
+                        'velocityX' => 0,
+                        'velocityY' => 0,
+                        'isJumping' => false
+                    ];
+                    $this->broadcastNewState($server, 'newPlayer');
                     break;
                 case 'left':
-                    $this->players[$frame->fd]['x'] -= 10;
+                    $this->players[$frame->fd]['velocityX'] = -self::MOVE_SPEED;
                     break;
                 case 'right':
-                    $this->players[$frame->fd]['x'] += 10;
+                    $this->players[$frame->fd]['velocityX'] = self::MOVE_SPEED;
+                    break;
+                case 'jump':
+                    if (!$this->players[$frame->fd]['isJumping']) {
+                        $this->players[$frame->fd]['velocityY'] = self::JUMP_STRENGTH;
+                        $this->players[$frame->fd]['isJumping'] = true;
+                    }
                     break;
                 default:
                     $server->push($frame->fd, json_encode(['message' => 'Unknown command']));
                     return;
             }
 
-            // 廣播所有玩家的最新位置給所有連接的客戶端
-            foreach ($server->connections as $fd) {
-                if ($server->isEstablished($fd)) {
-                    $this->pusher($server, $fd, 'updatePosition', [
-                        'players' => $this->players
-                    ]);
-                }
-            }
+            $this->applyPhysics($frame->fd);
+            $this->broadcastNewState($server, 'updatePosition');
         }
     }
 
     public function onClose(Server $server, $fd, $reactorId)
     {
         unset($this->players[$fd]);
-
-        foreach ($server->connections as $clientFd) {
-            if ($server->isEstablished($clientFd)) {
-                $this->pusher($server, $clientFd, 'playerLeft', [
-                    'players' => $this->players
-                ]);
-            }
-        }
-
+        $this->broadcastNewState($server, 'playerLeft');
         echo "websocket connection closed: fd $fd\n";
     }
 
-    public function pusher($server, $fd, $type, $data = [])
+    private function broadcastNewState($server, $type)
     {
-        $server->push($fd, json_encode([
-            'type' => $type,
-            'data' => $data
-        ]));
+        foreach ($server->connections as $fd) {
+            if ($server->isEstablished($fd)) {
+                $server->push($fd, json_encode([
+                    'type' => $type,
+                    'data' => ['players' => $this->players]
+                ]));
+            }
+        }
+    }
+
+    private function applyPhysics($playerId)
+    {
+        $player = &$this->players[$playerId];
+        $player['velocityY'] += self::GRAVITY;
+        $player['y'] += $player['velocityY'];
+        $player['x'] += $player['velocityX'];
+
+        // Apply friction
+        $player['velocityX'] *= self::FRICTION;
+
+        // Check boundaries (assuming canvas size of 800x400)
+        if ($player['x'] < 0) $player['x'] = 0;
+        if ($player['x'] + 20 > 800) $player['x'] = 800 - 20;
+        if ($player['y'] + 40 > 400) {
+            $player['y'] = 400 - 40;
+            $player['velocityY'] = 0;
+            $player['isJumping'] = false;
+        }
+
+        // Check platform collisions
+        $platforms = [
+            ['x' => 0, 'y' => 350, 'width' => 800, 'height' => 50],
+            ['x' => 200, 'y' => 250, 'width' => 100, 'height' => 20],
+            ['x' => 400, 'y' => 200, 'width' => 100, 'height' => 20],
+            ['x' => 600, 'y' => 150, 'width' => 100, 'height' => 20]
+        ];
+
+        foreach ($platforms as $platform) {
+            if ($player['y'] + 40 > $platform['y'] && 
+                $player['y'] < $platform['y'] + $platform['height'] &&
+                $player['x'] + 20 > $platform['x'] && 
+                $player['x'] < $platform['x'] + $platform['width']) {
+                $player['y'] = $platform['y'] - 40;
+                $player['velocityY'] = 0;
+                $player['isJumping'] = false;
+                break;
+            }
+        }
+    }
+
+    private function startGameLoop()
+    {
+        swoole_timer_tick(1000 / self::TICK_RATE, function () {
+            foreach ($this->players as $playerId => $player) {
+                $this->applyPhysics($playerId);
+            }
+            $this->broadcastNewState($this->server, 'updatePosition');
+        });
     }
 
     public function startMonitoring()
@@ -105,17 +149,6 @@ class WebSocketHandler implements WebSocketHandlerInterface
             if ($this->server) {
                 $stats = $this->server->stats();
                 echo json_encode($stats) . PHP_EOL;
-                //  foreach ($this->server->connections as $fd) {
-                //      if ($this->server->isEstablished($fd)) {
-                //          $this->pusher($this->server, $fd, 'serverStats', [
-                //              'worker_num' => $stats['worker_num'] ?? 0,
-                //              'active_worker_num' => $stats['active_worker_num'] ?? 0,
-                //              'task_worker_num' => $stats['task_worker_num'] ?? 0,
-                //              'connection_num' => $stats['connection_num'] ?? 0,
-                //              'total_request_count' => $stats['request_count'] ?? 0
-                //          ]);
-                //      }
-                //  }
             }
         });
     }

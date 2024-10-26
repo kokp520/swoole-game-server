@@ -86,3 +86,19 @@ worker 進程的使用：Swoole 的 worker 模型通常是預設開啟多個進�
 
 - go thread and task worker difference
 ![alt text](image-1.png)
+
+
+#### socket io
+
+**20241025**
+selec/poll/epoll是啥
+
+eventloop reactor 模型 process持續監聽 不阻塞
+reactor模型 用於大量io處理
+
+具體來說會在worker內部運行一個thread當作reactor在處理這件事
+
+barrier可以卡住thread等待完成
+process\pool 管理進程
+Swoole\Thread\Pool 
+

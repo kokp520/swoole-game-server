@@ -285,7 +285,7 @@ return [
         'daemonize'          => env('LARAVELS_DAEMONIZE', false),
         'dispatch_mode'      => env('LARAVELS_DISPATCH_MODE', 3),
         'worker_num'         => env('LARAVELS_WORKER_NUM', 30),
-        //'task_worker_num'    => env('LARAVELS_TASK_WORKER_NUM', 10),
+        'task_worker_num'    => env('LARAVELS_TASK_WORKER_NUM', 10),
         'task_ipc_mode'      => 1,
         'task_max_request'   => env('LARAVELS_TASK_MAX_REQUEST', 100000),
         'task_tmpdir'        => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
@@ -304,6 +304,7 @@ return [
         'enable_coroutine'   => false,
         'upload_tmp_dir'     => @is_writable('/dev/shm/') ? '/dev/shm' : '/tmp',
         'http_compression'   => env('LARAVELS_HTTP_COMPRESSION', false),
+
 
         // 心跳檢測
         'heartbeat_check_interval' => 60,

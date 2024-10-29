@@ -64,6 +64,9 @@ class WebSocketHandler implements WebSocketHandlerInterface
                         $this->players[$frame->fd]['isJumping'] = true;
                     }
                     break;
+                case 'disconnect':
+                    $this->onClose($server, $frame->fd, null);
+                    break;
                 default:
                     $server->push($frame->fd, json_encode(['message' => 'Unknown command']));
                     return;
@@ -95,7 +98,22 @@ class WebSocketHandler implements WebSocketHandlerInterface
 
     private function applyPhysics($playerId)
     {
+        // 檢查玩家是否存在
+        if (!isset($this->players[$playerId])) {
+            return;
+        }
+
         $player = &$this->players[$playerId];
+
+        // 確保 velocityX 和 velocityY 被初始化
+        if (!isset($player['velocityX'])) {
+            $player['velocityX'] = 0;
+        }
+        if (!isset($player['velocityY'])) {
+            $player['velocityY'] = 0;
+        }
+
+        // 現有的物理運算邏輯
         $player['velocityY'] += self::GRAVITY;
         $player['y'] += $player['velocityY'];
         $player['x'] += $player['velocityX'];
@@ -121,10 +139,12 @@ class WebSocketHandler implements WebSocketHandlerInterface
         ];
 
         foreach ($platforms as $platform) {
-            if ($player['y'] + 40 > $platform['y'] && 
+            if (
+                $player['y'] + 40 > $platform['y'] &&
                 $player['y'] < $platform['y'] + $platform['height'] &&
-                $player['x'] + 20 > $platform['x'] && 
-                $player['x'] < $platform['x'] + $platform['width']) {
+                $player['x'] + 20 > $platform['x'] &&
+                $player['x'] < $platform['x'] + $platform['width']
+            ) {
                 $player['y'] = $platform['y'] - 40;
                 $player['velocityY'] = 0;
                 $player['isJumping'] = false;
@@ -132,6 +152,7 @@ class WebSocketHandler implements WebSocketHandlerInterface
             }
         }
     }
+
 
     private function startGameLoop()
     {

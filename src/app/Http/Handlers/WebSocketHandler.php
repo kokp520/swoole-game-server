@@ -169,7 +169,7 @@ class WebSocketHandler implements WebSocketHandlerInterface
         swoole_timer_tick(1000, function () {
             if ($this->server) {
                 $stats = $this->server->stats();
-                echo json_encode($stats) . PHP_EOL;
+                // echo json_encode($stats) . PHP_EOL;
             }
         });
     }

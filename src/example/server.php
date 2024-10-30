@@ -32,10 +32,10 @@ $server->on('Start', function ($server) {
 $server->on('WorkerStart', function ($server, $worker_id) {
     if ($worker_id < $server->setting['worker_num']) {
         // cli_set_process_title("php-swoole-worker-{$worker_id}");
-        swoole_set_process_name("php $worker_id event wwworker1");
+        swoole_set_process_name("php $worker_id event aaaworker");
     } else {
         // cli_set_process_title("php-swoole-task-worker-" . ($worker_id - $server->setting['worker_num']));
-        swoole_set_process_name("php $worker_id event wwworker2");
+        swoole_set_process_name("php $worker_id event aaatasker");
     }
 });
 
@@ -62,12 +62,12 @@ $server->on('Request', function (Request $request, Response $response) use ($ser
         $responseContent .= "Request 1 complete: HTTP Status {$httpClient->statusCode}\n";
     });
 
-    go(function () use ($server, &$responseContent) {
-        $httpClient = new Swoole\Coroutine\Http\Client('example.org', 80);
-        $httpClient->set(['timeout' => 1]);
-        $httpClient->get('/');
-        $responseContent .= "Request 2 complete: HTTP Status {$httpClient->statusCode}\n";
-    });
+    // go(function () use ($server, &$responseContent) {
+    //     $httpClient = new Swoole\Coroutine\Http\Client('example.org', 80);
+    //     $httpClient->set(['timeout' => 1]);
+    //     $httpClient->get('/');
+    //     $responseContent .= "Request 2 complete: HTTP Status {$httpClient->statusCode}\n";
+    // });
 
     $server->task("This is a task message");
 

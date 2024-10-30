@@ -13,3 +13,7 @@ Route::get('/game', function () {
 Route::get('/lobby', function () {
     return view('lobby');
 });
+
+Route::get('/rpg', function () {
+    return view('rpg-game');
+});

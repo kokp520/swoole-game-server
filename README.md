@@ -87,7 +87,6 @@ worker 進程的使用：Swoole 的 worker 模型通常是預設開啟多個進�
 - go thread and task worker difference
 ![alt text](image-1.png)
 
-
 #### socket io
 
 **20241025**
@@ -102,3 +101,4 @@ barrier可以卡住thread等待完成
 process\pool 管理進程
 Swoole\Thread\Pool 
 
+![alt text](image-2.png)

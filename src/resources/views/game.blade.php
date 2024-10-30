@@ -32,7 +32,7 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const ws = new WebSocket('ws://127.0.0.1:5200');
+        const ws = new WebSocket('ws://192.168.11.111:5200');
 
         let players = {};
         const gravity = 0.5;

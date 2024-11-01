@@ -2,6 +2,12 @@
 
 ## About swoole-game-server
 
+本篇內容為分享會內容，只為研究框架以及測試其性能目的。
+於是以下目前只紀錄log book作為紀錄。
+
+hhxsv5/laravel-s swoole開啟遊戲服務
+前端目前先直接用canvas連接websocket
+
 ## log book
 
  - **20241018**
@@ -102,3 +108,6 @@ process\pool 管理進程
 Swoole\Thread\Pool 
 
 ![alt text](image-2.png)
+
+
+**20241101**

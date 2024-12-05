@@ -3,3 +3,4 @@ bootstrap/cache
 .env
 storage/
 src/.env
+.DS_Store
